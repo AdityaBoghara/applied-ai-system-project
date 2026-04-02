@@ -21,20 +21,35 @@ This is a purely content-based recommender. There is no play history, no user-to
 
 **Data flow:**
 
-```
-User Preferences
-      │
-      ▼
-load_songs(data/songs.csv) → 18 song dicts
-      │
-      ▼
-For each song → score_song(song, user_prefs) → (song, score, explanation)
-      │
-      ▼
-Sort all 18 scored songs descending by score
-      │
-      ▼
-Return top-k  (default k = 5)
+```mermaid
+flowchart TD
+    A([🎧 User Preferences\ngenre · mood · energy\ntempo · valence · acousticness]) --> B
+
+    B[load_songs\ndata/songs.csv] --> C[Song Catalog\n18 songs as list of dicts]
+
+    C --> D{For each song\nin catalog}
+    A --> D
+
+    D --> E[score_song\nsong · user_prefs]
+
+    E --> F1[+2.0 Genre match?]
+    E --> F2[+1.0 Mood match?]
+    E --> F3[+1.5 × Energy similarity]
+    E --> F4[+0.8 × Tempo similarity]
+    E --> F5[+0.6 × Valence similarity]
+    E --> F6[+0.5 Acousticness bonus]
+
+    F1 & F2 & F3 & F4 & F5 & F6 --> G[Total Score\n0.0 – 7.5 pts]
+
+    G --> H[scored_songs list\nsong · score · explanation]
+
+    H --> I{More songs?}
+    I -- Yes --> D
+    I -- No, all 18 scored --> J
+
+    J[Sort by score\ndescending]
+    J --> K[Slice top K\ndefault k=5]
+    K --> L([Output\nTitle · Score · Because: ...])
 ```
 
 ---
