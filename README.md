@@ -11,23 +11,96 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This system loads a catalog of 18 songs from `data/songs.csv`, scores every song against a user taste profile, and returns the top-k highest-scoring songs with an explanation for each recommendation.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+This is a purely content-based recommender. There is no play history, no user-to-user comparison, and no learning over time. Every song in the catalog is scored independently against the user's stated preferences, then the list is sorted and the top results are returned.
 
-Some prompts to answer:
+**Data flow:**
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+```
+User Preferences
+      │
+      ▼
+load_songs(data/songs.csv) → 18 song dicts
+      │
+      ▼
+For each song → score_song(song, user_prefs) → (song, score, explanation)
+      │
+      ▼
+Sort all 18 scored songs descending by score
+      │
+      ▼
+Return top-k  (default k = 5)
+```
 
-You can include a simple diagram or bullet list if helpful.
+---
+
+### Algorithm Recipe (Finalized)
+
+Scoring happens in three layers:
+
+**Layer 1 — Categorical matches (binary: 1 if match, 0 if not)**
+
+| Rule | Points | Rationale |
+|------|--------|-----------|
+| `song.genre == user.favorite_genre` | **+2.0** | Genre is the strongest identity signal — a rock fan rarely wants classical regardless of other features |
+| `song.mood == user.favorite_mood` | **+1.0** | Mood matters but is secondary; a chill song in the wrong genre still fits mood |
+
+**Layer 2 — Continuous similarity (proximity formula applied per feature)**
+
+For each numeric feature: `similarity = 1.0 - abs(song_value - target_value)`
+
+| Feature | Max Weight | Notes |
+|---------|------------|-------|
+| `energy` | **× 1.5** | Most immediately felt — a workout user notices a 0.3-energy lofi track instantly |
+| `tempo_bpm` (normalized ÷ 200) | **× 0.8** | Normalize raw BPM to 0–1 before differencing; listeners tolerate ±20 BPM easily |
+| `valence` | **× 0.6** | Emotional positivity/negativity — important but subjective |
+| `danceability` | **× 0.5** | Nice-to-have alignment |
+| `acousticness` | **× 0.6** | Strongly felt (electric vs. acoustic) but partly captured by genre already |
+
+**Layer 3 — Acoustic preference bonus (conditional)**
+
+```
+if user.likes_acoustic == False and song.acousticness < 0.3:  +0.5
+if user.likes_acoustic == True  and song.acousticness > 0.7:  +0.5
+```
+
+**Maximum possible score: ~7.5 points**
+
+Full formula:
+
+```
+score = (genre_match × 2.0)
+      + (mood_match  × 1.0)
+      + (1 - |energy      - target_energy|)      × 1.5
+      + (1 - |tempo_bpm/200 - target_tempo/200|) × 0.8
+      + (1 - |valence     - target_valence|)     × 0.6
+      + (1 - |danceability - target_danceability|) × 0.5
+      + (1 - |acousticness - target_acousticness|) × 0.6
+      + acoustic_bonus (0 or 0.5)
+```
+
+### Ranking Rule
+
+```python
+recommendations = sorted(scored_songs, key=lambda x: x[1], reverse=True)[:k]
+```
+
+Scoring and ranking are kept separate so diversity rules (e.g., cap 1 song per artist) can be added to the ranking step without touching the scoring logic.
+
+---
+
+### Known Biases and Limitations
+
+- **Genre over-prioritization:** With a 2.0 flat bonus for a genre match, a mediocre rock song will outscore an excellent folk song even if the folk song perfectly matches every audio feature. A user with niche genre preferences may get a narrow, repetitive list.
+- **Mood is all-or-nothing:** "Relaxed" and "chill" feel similar to a human but score 0 against each other because matching is exact string equality. Any mood mismatch loses the full 1.0 point.
+- **Small catalog amplifies genre gaps:** With only 18 songs, genres with 1–2 representatives (reggae, metal, country) can only ever surface those songs for matching users, offering no variety.
+- **No novelty or diversity:** The algorithm always returns the closest matches. A user who loves rock will always see the same top rock songs — there is no mechanism to surface a surprising but fitting pick from another genre.
+- **Static user profile:** Preferences are fixed at run time. Real listeners shift between moods throughout the day; this system has no way to reflect that.
 
 ---
 
