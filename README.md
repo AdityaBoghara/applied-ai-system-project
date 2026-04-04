@@ -142,9 +142,59 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
-**Sample output** (default rock / intense / high-energy profile):
+---
 
-![Terminal output](Screenshot%202026-04-04%20at%204.36.18%20AM.png)
+## Profile Output Screenshots
+
+### Standard Taste Profiles
+
+**High-Energy Pop** — upbeat pop fan, high danceability, bright valence
+
+![High-Energy Pop](docs/screenshots/profile_highenergy_pop.png)
+
+---
+
+**Chill Lofi** — study/focus listener, warm acoustics, slow tempo
+
+![Chill Lofi](docs/screenshots/profile_chill_lofi.png)
+
+---
+
+**Deep Intense Rock** — electric rock/metal fan, high energy, fast tempo
+
+![Deep Intense Rock](docs/screenshots/profile_deep_intense_rock.png)
+
+---
+
+### System Evaluation — Adversarial / Edge-Case Profiles
+
+**Conflicting Energy + Sad Mood** — `energy: 0.9` but `mood: sad` (absent from catalog); reveals continuous energy score overrides the 0-point mood miss
+
+![Conflicting Energy + Sad Mood](docs/screenshots/profile_conflicting_energy_plus_sad_mood.png)
+
+---
+
+**All-Max Extremes** — every target at its ceiling (1.0 / 200 BPM); the single genre+mood match creates a large score cliff — #1 scores 6.80, #2 only 3.89
+
+![All-Max Extremes](docs/screenshots/profile_allmax_extremes.png)
+
+---
+
+**All-Min Zeros** — every target at zero; confirms no negative scores are produced; ambient/low-energy songs rise to the top
+
+![All-Min Zeros](docs/screenshots/profile_allmin_zeros.png)
+
+---
+
+**Genre Mismatch, Strong Continuous** — classical genre (1 song) + romantic mood (1 r&b song); shows the +2.0 categorical bonus can override a better continuous-feature fit
+
+![Genre Mismatch, Strong Continuous](docs/screenshots/profile_genre_mismatch_strong_continuous.png)
+
+---
+
+**Acoustic Flag Contradiction** — `likes_acoustic: True` but `target_acousticness: 0.05`; Layer 2 and Layer 3 pull in opposite directions — Storm Runner wins with no acoustic bonus, exposing the silent contradiction
+
+![Acoustic Flag Contradiction](docs/screenshots/profile_acoustic_flag_contradiction.png)
 
 ### Running Tests
 

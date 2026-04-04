@@ -1,0 +1,8 @@
+High-Energy Pop|docs/screenshots/profile_highenergy_pop.png
+Chill Lofi|docs/screenshots/profile_chill_lofi.png
+Deep Intense Rock|docs/screenshots/profile_deep_intense_rock.png
+Conflicting Energy + Sad Mood|docs/screenshots/profile_conflicting_energy_plus_sad_mood.png
+All-Max Extremes|docs/screenshots/profile_allmax_extremes.png
+All-Min Zeros|docs/screenshots/profile_allmin_zeros.png
+Genre Mismatch, Strong Continuous|docs/screenshots/profile_genre_mismatch_strong_continuous.png
+Acoustic Flag Contradiction|docs/screenshots/profile_acoustic_flag_contradiction.png
