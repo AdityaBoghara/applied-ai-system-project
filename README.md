@@ -142,6 +142,10 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
+**Sample output** (default rock / intense / high-energy profile):
+
+![Terminal output](Screenshot%202026-04-04%20at%204.36.18%20AM.png)
+
 ### Running Tests
 
 Run the starter tests with:
