@@ -15,6 +15,23 @@ This system loads a catalog of 18 songs from `data/songs.csv`, scores every song
 
 ---
 
+## How Real-World Music Recommenders Work
+
+Platforms like Spotify and YouTube Music build recommendations from three layers of information working together.
+
+**Input data** is everything the system knows about the songs themselves: audio features extracted automatically from the audio signal (tempo, energy, acousticness, danceability, valence) plus human-assigned tags like genre and mood. Spotify calls these its audio features API; YouTube uses similar signals derived from audio and metadata.
+
+**User preferences** are inferred from behavior, not typed in. Every skip, repeat, playlist save, and thumbs-up is a signal. Over time the system builds a taste profile — a mathematical fingerprint of the kinds of songs this user tends to engage with. Spotify's Taste Profile and YouTube's watch history both work this way; the user never fills out a form.
+
+**Ranking and selection** combine those two inputs. A candidate set of songs is scored against the user's profile, often using a mix of:
+- *Content-based filtering* — matching song features directly to what the user has liked before (similar to what this project does).
+- *Collaborative filtering* — finding other users with a similar listening history and recommending what they liked next ("users who liked X also liked Y").
+- *Contextual re-ranking* — adjusting the final order based on time of day, current session mood, or freshness (new releases get a boost).
+
+The final ranked list is what surfaces in "Discover Weekly" or the YouTube autoplay queue. This project simulates the content-based layer only — scoring songs against an explicit taste profile — without play history, collaborative signals, or re-ranking.
+
+---
+
 ## How The System Works
 
 This is a purely content-based recommender. There is no play history, no user-to-user comparison, and no learning over time. Every song in the catalog is scored independently against the user's stated preferences, then the list is sorted and the top results are returned.
