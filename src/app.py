@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
@@ -7,15 +8,20 @@ from src.recommender import load_songs, recommend_songs
 from src.rag_engine import retrieve_context
 from src.logger import log_run
 
+_SONGS_CSV = Path(__file__).parent.parent / "data" / "songs.csv"
+
 # ── page config ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title="VibeMatch", page_icon="🎵", layout="wide")
 
 # ── data ─────────────────────────────────────────────────────────────────────
 @st.cache_data
 def get_songs():
-    return load_songs("data/songs.csv")
+    return load_songs(str(_SONGS_CSV))
 
 SONGS = get_songs()
+
+CATALOG_GENRES = sorted({s["genre"] for s in SONGS})
+CATALOG_MOODS  = sorted({s["mood"]  for s in SONGS})
 
 PROFILES = {
     "High-Energy Pop": {
@@ -83,8 +89,8 @@ profile_name = st.sidebar.selectbox("Taste profile", list(PROFILES.keys()))
 
 if profile_name == "Custom":
     st.sidebar.markdown("**Build your own profile**")
-    fav_genre    = st.sidebar.text_input("Favorite genre", "pop")
-    fav_mood     = st.sidebar.text_input("Favorite mood", "happy")
+    fav_genre    = st.sidebar.selectbox("Favorite genre", CATALOG_GENRES, index=CATALOG_GENRES.index("pop"))
+    fav_mood     = st.sidebar.selectbox("Favorite mood",  CATALOG_MOODS,  index=CATALOG_MOODS.index("happy"))
     energy       = st.sidebar.slider("Target energy", 0.0, 1.0, 0.7)
     tempo        = st.sidebar.slider("Target tempo (BPM)", 0, 200, 120)
     valence      = st.sidebar.slider("Target valence", 0.0, 1.0, 0.6)
