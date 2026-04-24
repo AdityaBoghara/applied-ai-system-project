@@ -16,10 +16,12 @@ A content-based music recommender built from scratch in Python. The system score
 8. [Setup and Installation](#8-setup-and-installation)
 9. [Running the App](#9-running-the-app)
 10. [Running the Tests](#10-running-the-tests)
-11. [Sample Output](#11-sample-output)
+11. [Sample Interactions](#11-sample-interactions)
 12. [Profile Screenshots](#12-profile-screenshots)
 13. [Known Biases and Limitations](#13-known-biases-and-limitations)
-14. [Reflection](#14-reflection)
+14. [Design Decisions](#14-design-decisions)
+15. [Testing Summary](#15-testing-summary)
+16. [Reflection](#16-reflection)
 
 ---
 
@@ -38,6 +40,10 @@ Unlike production recommenders, VibeMatch has no play history, no user-to-user c
 | Logger | `src/logger.py` | Logs every run to console + file; warns when top score is below 3.0 |
 | Runner | `src/main.py` | Wires everything together across 8 taste profiles |
 | Tests | `tests/` | 6 tests covering the recommender, RAG retrieval, and logger |
+
+**Original project — Module 3**
+
+This system is the final iteration of *Music Recommender Simulation*, the project built during Module 3. The original goal was to build a content-based recommendation engine that scores songs against a user taste profile using weighted numeric features. It demonstrated that a small, hand-curated catalog and explicit feature weights could produce accurate, explainable recommendations without any training data or machine-learning infrastructure.
 
 ---
 
@@ -253,7 +259,30 @@ pytest
 
 ---
 
-## 11. Sample Output
+## 11. Sample Interactions
+
+Each example shows the input taste profile followed by the top result the system returned.
+
+---
+
+### Example 1 — High-Energy Pop
+
+**Input profile:**
+
+```python
+{
+    "favorite_genre":      "pop",
+    "favorite_mood":       "happy",
+    "target_energy":       0.90,
+    "likes_acoustic":      False,
+    "target_tempo_bpm":    128,
+    "target_valence":      0.85,
+    "target_danceability": 0.90,
+    "target_acousticness": 0.08,
+}
+```
+
+**Output (top result):**
 
 ```
 ============================================================
@@ -276,6 +305,97 @@ pytest
        Genre context:
          Pop music is defined by its polished, radio-friendly sound built around
          catchy hooks, melodic choruses, and repetitive song structures...
+```
+
+---
+
+### Example 2 — Chill Lofi
+
+**Input profile:**
+
+```python
+{
+    "favorite_genre":      "lofi",
+    "favorite_mood":       "chill",
+    "target_energy":       0.38,
+    "likes_acoustic":      True,
+    "target_tempo_bpm":    76,
+    "target_valence":      0.58,
+    "target_danceability": 0.60,
+    "target_acousticness": 0.78,
+}
+```
+
+**Output (top result):**
+
+```
+============================================================
+  🎵  TOP RECOMMENDATIONS — Chill Lofi
+============================================================
+
+  #1  Library Rain
+       by Paper Lanterns  |  Lofi  |  Chill
+       Score: 7.32
+       ────────────────────────────────────────
+         • genre match (+0.5)
+         • mood match (+1.0)
+         • energy similarity (+2.91)
+         • tempo similarity (+0.78)
+         • valence similarity (+0.59)
+         • danceability similarity (+0.49)
+         • acousticness similarity (+0.55)
+         • acoustic bonus: acoustic preference match (+0.5)
+
+       Genre context:
+         Lo-fi music features a deliberately low-fidelity aesthetic with soft
+         beats, vinyl crackle, and warm, slightly muffled tones that evoke a
+         nostalgic, lived-in feeling...
+```
+
+---
+
+### Example 3 — Deep Intense Rock
+
+**Input profile:**
+
+```python
+{
+    "favorite_genre":      "rock",
+    "favorite_mood":       "intense",
+    "target_energy":       0.88,
+    "likes_acoustic":      False,
+    "target_tempo_bpm":    145,
+    "target_valence":      0.50,
+    "target_danceability": 0.68,
+    "target_acousticness": 0.10,
+}
+```
+
+**Output (top result):**
+
+```
+============================================================
+  🎵  TOP RECOMMENDATIONS — Deep Intense Rock
+============================================================
+
+  #1  Storm Runner
+       by Voltline  |  Rock  |  Intense
+       Score: 7.36
+       ────────────────────────────────────────
+         • genre match (+0.5)
+         • mood match (+1.0)
+         • energy similarity (+2.91)
+         • tempo similarity (+0.77)
+         • valence similarity (+0.59)
+         • danceability similarity (+0.49)
+         • acousticness similarity (+0.60)
+         • acoustic bonus: non-acoustic preference match (+0.5)
+
+       Genre context:
+         Rock music is driven by electric guitars, a strong backbeat, and
+         powerful vocals that convey intensity and attitude. Energy levels vary
+         from the anthemic drive of classic rock to the raw aggression of
+         hard rock and punk...
 ```
 
 ---
@@ -350,7 +470,53 @@ pytest
 
 ---
 
-## 14. Reflection
+## 14. Design Decisions
+
+**Content-based filtering, not collaborative**
+
+VibeMatch has no play history and no user base. Collaborative filtering — "people like you also liked X" — requires interaction data that doesn't exist here. Content-based filtering needs only a song catalog and a preference vector, making it the only viable choice at this scope. The trade-off is that the system can never surface a genuinely unexpected song: every result is a near-neighbor of what the user already described.
+
+**Feature weights are hand-tuned, not learned**
+
+The weights (energy ×3.0, mood ×1.0, genre ×0.5, etc.) were set by reasoning about each feature's perceptual salience, then validated against the adversarial profiles to check for unwanted behavior. A real system would learn weights from skip and play signals. The trade-off: hand-tuned weights are fully explainable and easy to adjust, but they encode the designer's assumptions and cannot adapt to individual listeners.
+
+**RAG for genre context, not a hard-coded dictionary**
+
+Genre descriptions could have been a Python dictionary. Using ChromaDB means new genres can be added by dropping a `.txt` file into `data/knowledge_base/` — no code change needed. Retrieval also handles unknown genres gracefully: a song tagged "indie pop" falls back to the nearest genre by cosine similarity rather than throwing a KeyError. The trade-off is extra infrastructure (ChromaDB, ONNX model download) for what is currently a read-only lookup over 10 fixed genres.
+
+**ONNX backend instead of PyTorch sentence-transformers**
+
+The `sentence_transformers` library caused a segmentation fault in the Anaconda environment due to a Keras 3 / PyTorch native library conflict. ChromaDB ships the same `all-MiniLM-L6-v2` model as a self-contained ONNX binary, producing identical embeddings without the PyTorch dependency. The trade-off: ONNX is less flexible for fine-tuning, but it eliminates a fragile native dependency.
+
+**Local ChromaDB, not a hosted vector database**
+
+A hosted service would add API key management, network latency, and cost for a 10-document store. Local ChromaDB persists to `data/chroma_store/` and runs entirely offline. The trade-off: the store is not shareable across machines without copying the directory.
+
+**Confidence threshold of 3.0**
+
+A score below 3.0 means the system failed to earn either the mood bonus (1.0) or a meaningful energy similarity contribution — a signal that no good match exists in the current catalog. Thresholds above 3.0 produced false warnings for legitimate niche profiles; below 3.0 suppressed warnings for genuinely unmatched queries. The value was tuned empirically against the 8 profiles.
+
+---
+
+## 15. Testing Summary
+
+**What worked**
+
+The confidence-threshold warning (score < 3.0) fired correctly and only for the *All-Min Zeros* adversarial profile — the one case where no catalog song was a meaningful match. Scoring is fully deterministic: the same profile always produces the same ranked list. The RAG tests confirmed that `retrieve_context()` never returns an empty string, so the genre context block always renders in the output.
+
+**What didn't work as expected**
+
+The `Recommender` class in `recommender.py` has placeholder `recommend()` and `explain_recommendation()` methods that return stub values. The OOP tests in `test_recommender.py` pass, but they test the stub — not the real scoring logic in `score_song()` and `recommend_songs()`. This means the unit tests do not catch regressions in the core recommender path.
+
+The adversarial profiles also exposed a gap the tests don't cover: the *Acoustic Flag Contradiction* profile (`likes_acoustic=True` but `target_acousticness=0.05`) produces no error or warning, even though Layer 2 and Layer 3 are pulling in opposite directions. There is no validation at profile construction time.
+
+**What was learned**
+
+Unit tests alone were not enough to understand whether the system was working well. The most useful signal came from running all 8 profiles end-to-end and reading the scoring breakdowns. The adversarial profiles were more revealing than the standard ones — they exposed the energy dominance issue, the mood all-or-nothing problem, and the Layer 2/Layer 3 contradiction. None of these were flagged by any unit test.
+
+---
+
+## 16. Reflection
 
 **What this project revealed about recommender systems**
 
