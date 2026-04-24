@@ -1,0 +1,17 @@
+2026-04-24 00:05:44  INFO      RUN | profile='High-Energy Pop' | genre=pop | mood=happy | energy=0.90 | results=5
+2026-04-24 00:05:44  INFO      TOP | profile='High-Energy Pop' | #1='Sunrise City' | artist='Neon Echo' | score=7.10
+2026-04-24 00:05:45  INFO      RUN | profile='Chill Lofi' | genre=lofi | mood=chill | energy=0.38 | results=5
+2026-04-24 00:05:45  INFO      TOP | profile='Chill Lofi' | #1='Library Rain' | artist='Paper Lanterns' | score=7.32
+2026-04-24 00:05:45  INFO      RUN | profile='Deep Intense Rock' | genre=rock | mood=intense | energy=0.88 | results=5
+2026-04-24 00:05:45  INFO      TOP | profile='Deep Intense Rock' | #1='Storm Runner' | artist='Voltline' | score=7.36
+2026-04-24 00:05:46  INFO      RUN | profile='Conflicting Energy + Sad Mood' | genre=pop | mood=sad | energy=0.90 | results=5
+2026-04-24 00:05:46  INFO      TOP | profile='Conflicting Energy + Sad Mood' | #1='Gym Hero' | artist='Max Pulse' | score=5.99
+2026-04-24 00:05:46  INFO      RUN | profile='All-Max Extremes' | genre=electronic | mood=euphoric | energy=1.00 | results=5
+2026-04-24 00:05:46  INFO      TOP | profile='All-Max Extremes' | #1='Hyperspace Drift' | artist='Axiom' | score=6.62
+2026-04-24 00:05:47  INFO      RUN | profile='All-Min Zeros' | genre=ambient | mood=melancholic | energy=0.00 | results=5
+2026-04-24 00:05:47  INFO      TOP | profile='All-Min Zeros' | #1='Velvet Strings' | artist='Aria Nova' | score=5.74
+2026-04-24 00:05:47  INFO      RUN | profile='Genre Mismatch, Strong Continuous' | genre=classical | mood=romantic | energy=0.50 | results=5
+2026-04-24 00:05:47  INFO      TOP | profile='Genre Mismatch, Strong Continuous' | #1='Midnight Silk' | artist='Sable Rose' | score=6.10
+2026-04-24 00:05:48  INFO      RUN | profile='Acoustic Flag Contradiction' | genre=rock | mood=intense | energy=0.88 | results=5
+2026-04-24 00:05:48  INFO      TOP | profile='Acoustic Flag Contradiction' | #1='Storm Runner' | artist='Voltline' | score=6.83
+2026-04-24 00:12:03  WARNING   LOW CONFIDENCE | profile='Low Confidence Profile' | top_score=2.99 < 3.0

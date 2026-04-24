@@ -10,6 +10,8 @@ You will implement the functions in recommender.py:
 """
 
 from src.recommender import load_songs, recommend_songs
+from src.rag_engine import retrieve_context
+from src.logger import log_run
 
 
 # ---------------------------------------------------------------------------
@@ -162,6 +164,11 @@ def print_recommendations(label: str, recommendations: list) -> None:
         print(f"       {'─' * 40}")
         for reason in reasons:
             print(f"         • {reason}")
+
+        context = retrieve_context(song["genre"], song["mood"])
+        if context:
+            print(f"\n       Genre context:")
+            print(f"         {context}")
         print()
 
     print("=" * width + "\n")
@@ -176,6 +183,7 @@ def main() -> None:
     print("#" * 60)
     for label, prefs in PROFILES.items():
         recs = recommend_songs(prefs, songs, k=5)
+        log_run(label, prefs, recs)
         print_recommendations(label, recs)
 
     # --- Run adversarial / edge-case profiles ---
@@ -184,6 +192,7 @@ def main() -> None:
     print("#" * 60)
     for label, prefs in ADVERSARIAL_PROFILES.items():
         recs = recommend_songs(prefs, songs, k=5)
+        log_run(label, prefs, recs)
         print_recommendations(label, recs)
 
 
