@@ -500,6 +500,8 @@ A score below 3.0 means the system failed to earn either the mood bonus (1.0) or
 
 ## 15. Testing Summary
 
+**6 of 6 automated tests pass.** The confidence logger flagged 1 of 8 profiles (*All-Min Zeros*, top score 2.99 < 3.0) as a low-confidence result — the only profile where no meaningful catalog match existed. All standard profiles scored above 6.0. The system implements four reliability measures: automated pytest tests, confidence-score warnings, dual-handler logging (console + file), and manual evaluation across 8 taste profiles including 5 adversarial edge cases.
+
 **What worked**
 
 The confidence-threshold warning (score < 3.0) fired correctly and only for the *All-Min Zeros* adversarial profile — the one case where no catalog song was a meaningful match. Scoring is fully deterministic: the same profile always produces the same ranked list. The RAG tests confirmed that `retrieve_context()` never returns an empty string, so the genre context block always renders in the output.
@@ -528,13 +530,29 @@ The adversarial profiles made this concrete. *Gym Hero* — an intense workout t
 
 Real recommenders like Spotify's have the same structural problem at larger scale. When an algorithm surfaces a song that feels slightly off, it is usually because one feature dimension is overweighted, not because the model is broken. The difference is that Spotify can observe whether you skip the song and adjust — VibeMatch cannot. Static weights are a design choice that trades adaptability for explainability.
 
+**Could this system be misused?**
+
+The direct harm potential is low — VibeMatch recommends songs, not medical diagnoses or financial advice. But the patterns it uses appear in higher-stakes systems, and the risks are worth naming.
+
+*Filter bubbles.* Content-based filtering only recommends what resembles what the user already described. At scale this compounds: each recommendation reinforces the profile, narrowing what the user is exposed to over time. VibeMatch has no diversity enforcement, so a user who starts with high-energy pop will only ever see high-energy pop.
+
+*Metadata manipulation.* The scoring formula is fully public. An actor controlling the catalog — a record label, a streaming platform — could tune song metadata (energy, danceability values) to guarantee their tracks surface regardless of genuine fit. The energy weight (×3.0) is the most exploitable lever: a 0.05 energy adjustment swings ranking by 0.15 points, enough to change the top result.
+
+*Stereotypes in the knowledge base.* The genre descriptions were written by hand and encode generalizations (e.g., "electronic music is for club-goers and festival attendees"). If those descriptions were used to filter candidates rather than just annotate results, they could push users toward genre stereotypes rather than personal taste.
+
+At this project's scope — a local Python script with no network access — there is no meaningful attack surface. The relevant safeguard is transparency: the full scoring formula and knowledge base are public, so every output can be audited.
+
 **AI collaboration**
 
-Claude Code was used as a pair programmer for the RAG engine, logger, and test suite. The most concrete time saving was a native library diagnosis: `sentence_transformers` caused a segmentation fault in the Anaconda environment due to a Keras 3 / PyTorch conflict. Claude identified the root cause from the stack trace and suggested using ChromaDB's ONNX backend — same model, no PyTorch dependency. What could have been hours of environment debugging took minutes.
+Claude Code was used as a pair programmer for the RAG engine, logger, and test suite.
 
-AI was less useful for design decisions: what the confidence threshold should be, how to weight the features, what the knowledge base entries should actually say. Those required understanding the project's purpose, not just its code.
+*Helpful suggestion.* The most concrete win was a native library diagnosis: `sentence_transformers` caused a segmentation fault in the Anaconda environment due to a Keras 3 / PyTorch conflict. Claude identified the root cause from the stack trace and suggested using ChromaDB's ONNX backend — same model, no PyTorch dependency. What could have been hours of environment debugging took minutes.
 
-The practical rule that emerged: use AI to close the gap between a clear idea and working code. Keep the idea-forming and the result verification on the human side.
+*Flawed suggestion.* When asked to write tests for the `Recommender` class, Claude generated tests against the OOP stub methods — `recommend()` returns `self.songs[:k]` and `explain_recommendation()` returns `"Explanation placeholder"`. All tests pass, but they are testing placeholder behavior, not the actual scoring logic in `score_song()` and `recommend_songs()`. A correct test would call `score_song()` directly and assert that a genre-matched, mood-matched song outscores a mismatched one. The flaw went unnoticed until manually tracing through the assertions — a reminder that passing tests are not the same as meaningful tests.
+
+AI was less useful for decisions that required understanding the project's purpose: what the confidence threshold should be, how to weight the features, what the knowledge base entries should say. Those judgment calls had to stay on the human side.
+
+The practical rule that emerged: use AI to close the gap between a clear idea and working code. Keep the idea-forming and the result-verification on the human side.
 
 **Further reading**
 

@@ -15,3 +15,4 @@
 2026-04-24 00:05:48  INFO      RUN | profile='Acoustic Flag Contradiction' | genre=rock | mood=intense | energy=0.88 | results=5
 2026-04-24 00:05:48  INFO      TOP | profile='Acoustic Flag Contradiction' | #1='Storm Runner' | artist='Voltline' | score=6.83
 2026-04-24 00:12:03  WARNING   LOW CONFIDENCE | profile='Low Confidence Profile' | top_score=2.99 < 3.0
+2026-04-24 01:06:37  WARNING   LOW CONFIDENCE | profile='Low Confidence Profile' | top_score=2.99 < 3.0
