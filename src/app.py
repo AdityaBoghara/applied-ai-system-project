@@ -7,6 +7,7 @@ import streamlit as st
 from src.recommender import load_songs, recommend_songs
 from src.rag_engine import retrieve_context
 from src.logger import log_run
+from src.profiles import PROFILES as _STD_PROFILES, ADVERSARIAL_PROFILES as _ADV_PROFILES, ADVERSARIAL_NAMES
 
 _SONGS_CSV = Path(__file__).parent.parent / "data" / "songs.csv"
 
@@ -23,62 +24,8 @@ SONGS = get_songs()
 CATALOG_GENRES = sorted({s["genre"] for s in SONGS})
 CATALOG_MOODS  = sorted({s["mood"]  for s in SONGS})
 
-PROFILES = {
-    "High-Energy Pop": {
-        "favorite_genre": "pop", "favorite_mood": "happy",
-        "target_energy": 0.90, "likes_acoustic": False,
-        "target_tempo_bpm": 128, "target_valence": 0.85,
-        "target_danceability": 0.90, "target_acousticness": 0.08,
-    },
-    "Chill Lofi": {
-        "favorite_genre": "lofi", "favorite_mood": "chill",
-        "target_energy": 0.38, "likes_acoustic": True,
-        "target_tempo_bpm": 76, "target_valence": 0.58,
-        "target_danceability": 0.60, "target_acousticness": 0.78,
-    },
-    "Deep Intense Rock": {
-        "favorite_genre": "rock", "favorite_mood": "intense",
-        "target_energy": 0.88, "likes_acoustic": False,
-        "target_tempo_bpm": 145, "target_valence": 0.50,
-        "target_danceability": 0.68, "target_acousticness": 0.10,
-    },
-    "Conflicting Energy + Sad Mood": {
-        "favorite_genre": "pop", "favorite_mood": "sad",
-        "target_energy": 0.90, "likes_acoustic": False,
-        "target_tempo_bpm": 128, "target_valence": 0.15,
-        "target_danceability": 0.85, "target_acousticness": 0.08,
-    },
-    "All-Max Extremes": {
-        "favorite_genre": "electronic", "favorite_mood": "euphoric",
-        "target_energy": 1.0, "likes_acoustic": False,
-        "target_tempo_bpm": 200, "target_valence": 1.0,
-        "target_danceability": 1.0, "target_acousticness": 0.0,
-    },
-    "All-Min Zeros": {
-        "favorite_genre": "ambient", "favorite_mood": "melancholic",
-        "target_energy": 0.0, "likes_acoustic": True,
-        "target_tempo_bpm": 0, "target_valence": 0.0,
-        "target_danceability": 0.0, "target_acousticness": 1.0,
-    },
-    "Genre Mismatch, Strong Continuous": {
-        "favorite_genre": "classical", "favorite_mood": "romantic",
-        "target_energy": 0.50, "likes_acoustic": True,
-        "target_tempo_bpm": 76, "target_valence": 0.80,
-        "target_danceability": 0.72, "target_acousticness": 0.65,
-    },
-    "Acoustic Flag Contradiction": {
-        "favorite_genre": "rock", "favorite_mood": "intense",
-        "target_energy": 0.88, "likes_acoustic": True,
-        "target_tempo_bpm": 145, "target_valence": 0.50,
-        "target_danceability": 0.68, "target_acousticness": 0.05,
-    },
-    "Custom": None,
-}
-
-ADVERSARIAL = {
-    "Conflicting Energy + Sad Mood", "All-Max Extremes", "All-Min Zeros",
-    "Genre Mismatch, Strong Continuous", "Acoustic Flag Contradiction",
-}
+PROFILES = {**_STD_PROFILES, **_ADV_PROFILES, "Custom": None}
+ADVERSARIAL = ADVERSARIAL_NAMES
 
 # ── sidebar ───────────────────────────────────────────────────────────────────
 st.sidebar.title("🎵 VibeMatch")

@@ -56,10 +56,18 @@ def retrieve_context(song_genre: str, song_mood: str) -> str:
     results = collection.query(
         query_texts=[query],
         n_results=1,
-        include=["documents"],
+        include=["documents", "metadatas"],
     )
 
     docs = results.get("documents", [[]])
+    metas = results.get("metadatas", [[]])
     if docs and docs[0]:
-        return docs[0][0]
+        text = docs[0][0]
+        matched_genre = metas[0][0].get("genre", "") if metas and metas[0] else ""
+        if matched_genre and matched_genre != song_genre:
+            text = (
+                f"[No knowledge base entry for '{song_genre}' — "
+                f"showing closest match: '{matched_genre}']\n\n{text}"
+            )
+        return text
     return ""
