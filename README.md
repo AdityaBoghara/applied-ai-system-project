@@ -6,7 +6,7 @@ A content-based music recommender built from scratch in Python. The system score
 
 ## Demo
 
-[![VibeMatch Demo](https://cdn.loom.com/sessions/thumbnails/d2d499d9456345188b271ab35a25cf5a-00001.gif)](https://www.loom.com/share/d2d499d9456345188b271ab35a25cf5a)
+[Watch the VibeMatch Demo on Loom](https://www.loom.com/share/d2d499d9456345188b271ab35a25cf5a)
 
 ---
 
