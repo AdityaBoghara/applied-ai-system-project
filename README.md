@@ -4,9 +4,16 @@ A content-based music recommender built from scratch in Python. The system score
 
 ---
 
+## Demo
+
+[![VibeMatch Demo](https://cdn.loom.com/sessions/thumbnails/d2d499d9456345188b271ab35a25cf5a-00001.gif)](https://www.loom.com/share/d2d499d9456345188b271ab35a25cf5a)
+
+---
+
 ## Table of Contents
 
-1. [Project Overview](#1-project-overview)
+1. [Demo](#demo)
+2. [Project Overview](#1-project-overview)
 2. [System Architecture](#2-system-architecture)
 3. [How the Scoring Works](#3-how-the-scoring-works)
 4. [RAG Engine](#4-rag-engine)
