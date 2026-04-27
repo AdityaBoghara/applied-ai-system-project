@@ -50,6 +50,8 @@ Unlike production recommenders, VibeMatch has no play history, no user-to-user c
 
 **Original project — Module 3**
 
+**Base project:** [ai110-module3show-musicrecommendersimulation](https://github.com/AdityaBoghara/ai110-module3show-musicrecommendersimulation)
+
 This system is the final iteration of *Music Recommender Simulation*, the project built during Module 3. The original goal was to build a content-based recommendation engine that scores songs against a user taste profile using weighted numeric features. It demonstrated that a small, hand-curated catalog and explicit feature weights could produce accurate, explainable recommendations without any training data or machine-learning infrastructure.
 
 ---
